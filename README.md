@@ -6,8 +6,8 @@
 * Previous Article: https://github.com/ollama-tlms-golang/04-what-is-mcp
 * Next Article https://github.com/ollama-tlms-golang/06-mcp-host-genaiapp
 * Tips Ollama on MacOS: https://medium.com/@whyamit101/local-ai-using-ollama-with-agents-114c72182c97
-* mcphost: https://github.com/mark3labs/mcphost
-* LLMs with tool support, try mistral or https://heidloff.net/article/granite-ollama/ (https://ollama.com/library/granite4)
+* MCPHost 🤖: https://github.com/mark3labs/mcphost "A CLI host application that enables Large Language Models (LLMs) to interact with external tools through the Model Context Protocol (MCP). Currently supports Claude, OpenAI, Google Gemini, and Ollama models."
+* LLMs with tool calling support: https://www.docker.com/blog/local-llm-tool-calling-a-practical-evaluation/, try mistral or granite4, see https://ollama.com/search?q=tools
 
 Run ollama in shell to see log interaction (to run as service and enable after re-login: brew services start ollama);
 ```

@@ -19,9 +19,39 @@ mcp-time: cmd/time/main.go ## build mcp-time
 mcp-random: cmd/random/main.go ## build mcp-random
 	go build -o bin/mcp-random cmd/random/main.go
 
+install: ## install MCPHost if not already installed
+	@if ! command -v mcphost >/dev/null 2>&1; then \
+		echo "Installing MCPHost..."; \
+		go install github.com/mark3labs/mcphost@latest; \
+	else \
+		echo "MCPHost already installed."; \
+	fi
+
 .PHONY: run
-run: mcp-curl mcp-time mcp-random ## runs mcphost with mcp.kson config and specified ollama model
+run: install mcp-curl mcp-time mcp-random ## runs MCPHost with mcp.kson config and specified ollama model
 	mcphost --config ./mcp.json --model ollama:$(MODEL)
+
+
+.PHONY: ollama
+ollama:  ## install ollama if not already installed, and run it as a service
+	@if ! command -v ollama >/dev/null 2>&1; then \
+		echo "Installing Ollama..."; \
+		brew install ollama; \
+	else \
+		echo "MCPHost already installed."; \
+	fi
+	brew services info ollama
+	brew services run ollama
+	@ollama list
+
+
+.PHONY: ollama-stop
+ollama-stop:  ## stop ollama service
+	brew services stop ollama
+
+.PHONY: ollama-logs
+ollama-logs:  ## show logs from ollama service (blocking)
+	tail -f /opt/homebrew/var/log/ollama.log
 
 .PHONY: models
 models:  ## list ollama models
