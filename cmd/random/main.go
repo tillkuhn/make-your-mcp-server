@@ -2,13 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
+
+var logger *log.Logger
 
 func main() {
 	// Create MCP server
@@ -30,6 +35,13 @@ func main() {
 	s.AddTool(tool, randomHandler)
 
 	fmt.Println("🚀 Server started")
+	// log me amadeus
+	f, err := os.OpenFile("random.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Printf("Failed to open log file: %v\n", err)
+		os.Exit(1)
+	}
+	logger = log.New(f, "", log.LstdFlags)
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Printf("😡 Server error: %v\n", err)
@@ -38,6 +50,8 @@ func main() {
 }
 
 func randomHandler(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	reqBytes, _ := json.Marshal(req)
+	logger.Printf("REQUEST: %s\n", string(reqBytes))
 
 	thing, ok := req.Params.Arguments["thing"].(string)
 	if !ok {
@@ -62,6 +76,13 @@ func randomHandler(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolRes
 	//if err != nil {
 	//	return mcp.NewToolResultError(err.Error()), nil
 	//}
+	res := mcp.NewToolResultText(content)
+	logResponse(res)
+	return res, nil
 
-	return mcp.NewToolResultText(content), nil
+}
+
+func logResponse(res *mcp.CallToolResult) {
+	resBytes, _ := json.Marshal(res)
+	logger.Printf("RESPONSE: %s\n", string(resBytes))
 }

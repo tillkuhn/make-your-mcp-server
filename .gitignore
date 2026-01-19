@@ -3,3 +3,4 @@ README.fr.md
 
 .idea/
 bin/
+*.log
