@@ -27,6 +27,13 @@ install: ## install MCPHost if not already installed
 		echo "MCPHost already installed."; \
 	fi
 
+.PHONY: test
+# Run all Go unit tests for all mcp command tools
+# Usage: make test
+# Description: Runs all Go tests recursively in ./cmd/*
+test: ## run all unit tests for mcp tools
+	go test ./cmd/...
+
 .PHONY: run
 run: install mcp-curl mcp-time mcp-random ## runs MCPHost with mcp.kson config and specified ollama model
 	mcphost --config ./mcp.json --model ollama:$(MODEL)
