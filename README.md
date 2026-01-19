@@ -1,5 +1,32 @@
 # Creating an MCP Server in Go and Serving it with Docker
 
+## TKs Notebook
+
+* Parent Project https://github.com/ollama-tlms-golang/05-make-your-mcp-server
+* Tips Ollama on MacOS: https://medium.com/@whyamit101/local-ai-using-ollama-with-agents-114c72182c97
+* mcphost: https://github.com/mark3labs/mcphost
+
+Run ollama in shell to see log interaction (to run as service and enable after re-login: brew services start ollama);
+```
+$  OLLAMA_FLASH_ATTENTION="1" OLLAMA_KV_CACHE_TYPE="q8_0" /opt/homebrew/opt/ollama/bin/ollama serve
+
+time=2026-01-19T16:44:42.838+01:00 level=INFO source=routes.go:1667 msg="Listening on 127.0.0.1:11434 (version 0.14.2)"
+```
+
+Build MCP Server and run mcphost with ollama tinyllama model:
+```
+$ go build -o mcp-curl main.go
+$ mcphost --config ./mcp.json --model ollama:tinyllama:latest
+
+Model loaded: ollama (tinyllama:latest)
+Loaded 1 tools from MCP servers
+
+/tools
+Available tools:
+1. mcp-curl__use_curl
+```
+
+
 ## Introduction
 
 Today we'll look at how to create an MCP server in Go and serve it with Docker.
