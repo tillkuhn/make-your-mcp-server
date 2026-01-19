@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os/exec"
+
+	"fmt"
+	"mcp-curl/internal"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -44,25 +46,31 @@ func main() {
 }
 
 func curlHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	internal.LogRequest("mcp-curl", request)
 
 	url, ok := request.Params.Arguments["url"].(string)
 	if !ok {
+		internal.LogError("mcp-curl", fmt.Errorf("url parameter missing or not a string"))
 		return mcp.NewToolResultError("url must be a string"), nil
 	}
 	cmd := exec.CommandContext(ctx, "curl", "-s", url)
 	output, err := cmd.Output()
 	if err != nil {
+		internal.LogError("mcp-curl", err)
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 	content := string(output)
-
-	return mcp.NewToolResultText(content), nil
+	res := mcp.NewToolResultText(content)
+	internal.LogResponse("mcp-curl", res)
+	return res, nil
 }
 
 func ipinfoHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	internal.LogRequest("mcp-curl", request)
 
 	attribute, ok := request.Params.Arguments["attribute"].(string)
 	if !ok {
+		internal.LogError("mcp-curl", fmt.Errorf("attribute parameter missing or not a string"))
 		return mcp.NewToolResultError("attribute must be a string"), nil
 	}
 	allowed := map[string]bool{
@@ -70,15 +78,18 @@ func ipinfoHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		"loc": true, "org": true, "postal": true, "timezone": true,
 	}
 	if !allowed[attribute] {
+		internal.LogError("mcp-curl", fmt.Errorf("invalid attribute argument: %s", attribute))
 		return mcp.NewToolResultError("invalid attribute: must be one of city, region, country, loc, org, postal, timezone"), nil
 	}
 
 	cmd := exec.CommandContext(ctx, "curl", "-s", fmt.Sprintf("%s/%s", "https://ipinfo.io", attribute))
 	output, err := cmd.Output()
 	if err != nil {
+		internal.LogError("mcp-curl", err)
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 	content := string(output)
-
-	return mcp.NewToolResultText(content), nil
+	res := mcp.NewToolResultText(content)
+	internal.LogResponse("mcp-curl", res)
+	return res, nil
 }

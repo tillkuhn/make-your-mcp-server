@@ -8,6 +8,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"mcp-curl/internal"
 )
 
 func main() {
@@ -37,7 +38,8 @@ func main() {
 	fmt.Println("👋 Server stopped")
 }
 
-func timeHandler(_ context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func timeHandler(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	internal.LogRequest("mcp-time", req)
 
 	//url, ok := request.Params.Arguments["url"].(string)
 	//if !ok {
@@ -50,8 +52,12 @@ func timeHandler(_ context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult,
 	//}
 	currentTime := time.Now().Format("Monday, 02 Jan 2006, 15:04:05 MST")
 
-	horst, _ := os.Hostname()
+	horst, err := os.Hostname()
+	if err != nil {
+		internal.LogError("mcp-time", err)
+	}
 	content := "It's now " + currentTime + " on " + horst
-
-	return mcp.NewToolResultText(content), nil
+	res := mcp.NewToolResultText(content)
+	internal.LogResponse("mcp-time", res)
+	return res, nil
 }

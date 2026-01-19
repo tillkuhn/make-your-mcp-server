@@ -2,18 +2,15 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
+
+	"mcp-curl/internal"
 	"strings"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
-
-var logger *log.Logger
 
 func main() {
 	// Create MCP server
@@ -36,12 +33,6 @@ func main() {
 
 	fmt.Println("🚀 Server started")
 	// log me amadeus
-	f, err := os.OpenFile("random.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		fmt.Printf("Failed to open log file: %v\n", err)
-		os.Exit(1)
-	}
-	logger = log.New(f, "", log.LstdFlags)
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Printf("😡 Server error: %v\n", err)
@@ -50,11 +41,11 @@ func main() {
 }
 
 func randomHandler(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	reqBytes, _ := json.Marshal(req)
-	logger.Printf("REQUEST: %s\n", string(reqBytes))
+	internal.LogRequest("mcp-random", req)
 
 	thing, ok := req.Params.Arguments["thing"].(string)
 	if !ok {
+		internal.LogError("mcp-random", fmt.Errorf("'thing' parameter missing or not a string: %v", req.Params.Arguments["thing"]))
 		return mcp.NewToolResultError("thing must be a string"), nil
 	}
 	var content string
@@ -68,6 +59,7 @@ func randomHandler(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolRes
 	case "hobby":
 		content = gofakeit.Hobby()
 	default:
+		internal.LogError("mcp-random", fmt.Errorf("invalid thing argument: %s", thing))
 		return mcp.NewToolResultError("invalid thing " + thing + " currently only support for beer, hobby, job and (minecraft) food"), nil
 	}
 
@@ -83,6 +75,5 @@ func randomHandler(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolRes
 }
 
 func logResponse(res *mcp.CallToolResult) {
-	resBytes, _ := json.Marshal(res)
-	logger.Printf("RESPONSE: %s\n", string(resBytes))
+	internal.LogResponse("mcp-random", res)
 }
