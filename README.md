@@ -2,9 +2,12 @@
 
 ## TKs Notebook
 
-* Parent Project https://github.com/ollama-tlms-golang/05-make-your-mcp-server
+* Forked from Project Article https://github.com/ollama-tlms-golang/05-make-your-mcp-server
+* Previous Article: https://github.com/ollama-tlms-golang/04-what-is-mcp
+* Next Article https://github.com/ollama-tlms-golang/06-mcp-host-genaiapp
 * Tips Ollama on MacOS: https://medium.com/@whyamit101/local-ai-using-ollama-with-agents-114c72182c97
 * mcphost: https://github.com/mark3labs/mcphost
+* LLMs with tool support, try mistral or https://heidloff.net/article/granite-ollama/ (https://ollama.com/library/granite4)
 
 Run ollama in shell to see log interaction (to run as service and enable after re-login: brew services start ollama);
 ```
