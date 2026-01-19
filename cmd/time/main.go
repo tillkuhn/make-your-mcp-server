@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
+	"mcp-curl/internal"
+
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"mcp-curl/internal"
 )
 
 func main() {

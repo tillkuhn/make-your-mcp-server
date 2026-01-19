@@ -1,6 +1,6 @@
 # 🛠️ AGENTS.md — Guidelines for Autonomous Code Agents
 
-This file provides best practices, commands, and conventions for agentic (and human) contributors working in this repository. Follow these rules and suggestions to maximize effective, robust, and maintainable modifications.
+This document provides robust conventions, commands, and style rules for any agentic (or human) contributor operating in this repository. Adhering to these guidelines ensures safe, maintainable, and efficient delivery of changes.
 
 ---
 
@@ -8,76 +8,63 @@ This file provides best practices, commands, and conventions for agentic (and hu
 
 ### Build
 - **Go Build (per tool):**
-  - To build a single tool from `cmd/`, run:
+  - Build a single tool:
     ```sh
     go build -o bin/<tool-binary> cmd/<tool>/main.go
     ```
-  - Example:
-    ```sh
-    go build -o bin/mcp-curl cmd/curl/main.go
-    ```
-  
 - **All Binaries (via Makefile):**
-  - Build all standard binaries:
+  - Build all core binaries:
     ```sh
     make mcp-curl mcp-time mcp-random
     ```
-
 - **Docker Image:**
-  - To package e.g. `mcp-curl` as a Docker image:
+  - Package as Docker (example: mcp-curl):
     ```sh
     docker build -t mcp-curl .
     ```
 
 ### Lint
-- **Go formatting:**
-  - Format all code using:
-    ```sh
-    go fmt ./...
-    ```
-  - Lint tools (`golint`, `staticcheck`, etc.) are not configured by default. Add your preferred linter to workflow if needed.
+- **Formatting all code:**
+  ```sh
+  go fmt ./...
+  ```
+- No linter enforced by default (add `golint`, `staticcheck` or others if needed).
 
 ### Test
 - **All tests:**
-    ```sh
-    make test
-    # or
-    go test ./cmd/...
-    ```
+  ```sh
+  make test
+  # or
+  go test ./cmd/...
+  ```
 - **Single test file:**
-    ```sh
-    go test ./cmd/<tool>/main_test.go
-    ```
-- **Test coverage for a package:**
-    ```sh
-    go test -cover ./cmd/<tool>
-    ```
+  ```sh
+  go test ./cmd/<tool>/main_test.go
+  ```
 - **Run a specific test:**
-    ```sh
-    go test -run <TestFunctionName> ./cmd/<tool>/main_test.go
-    ```
-  - Example:
-    ```sh
-    go test -run TestCurlHandler_Http ./cmd/curl/main_test.go
-    ```
-
-### Cleaning artifacts
-- **Clean build outputs:**
-    ```sh
-    make clean
-    # or
-    rm -rf ./bin/*
-    ```
+  ```sh
+  go test -run <TestFunctionName> ./cmd/<tool>/main_test.go
+  ```
+- **Test coverage per package:**
+  ```sh
+  go test -cover ./cmd/<tool>
+  ```
+- **Clean builds:**
+  ```sh
+  make clean
+  # or
+  rm -rf ./bin/*
+  ```
 
 ---
 
 ## 🗂️ Code Style Guidelines
 
 ### Imports
-- Group stdlib, then third-party, then local modules.
-- Use blank lines to separate groups.
-- Prefer explicit imports; avoid dot imports and aliases unless improving clarity.
+- Group stdlib imports, third-party packages, then local modules (separate with blank lines).
+- Use explicit imports; avoid dot imports and aliases unless truly needed for clarity.
 
+Example:
 ```go
 import (
     "fmt"           // stdlib
@@ -86,32 +73,29 @@ import (
     "github.com/mark3labs/mcp-go/mcp"   // 3rd-party
     "github.com/mark3labs/mcp-go/server"
     "github.com/brianvoe/gofakeit/v7"
-    "mcp-curl/internal"                 // local module
+    "mcp-curl/internal"                 // local
 )
 ```
 
 ### Formatting
-- Enforce `gofmt` (run `go fmt ./...`).
-- Use tabs for indentation, 4 spaces visually.
-- Typical max line length is 100-120, but not strictly enforced.
+- Enforce idiomatic Go formatting via `gofmt`.
+- Use tabs for indentation (4 spaces width visually).
+- No strict line length (suggested 100-120 chars for agents).
 
 ### Types and Interfaces
-- Use concrete types unless handler flexibility is needed.
-- Use pointer receivers when mutating state or for efficiency.
-- Use Go error idioms: functions return an error value as the last argument.
-- Prefer explicitly typed variables unless short declarations are self-explanatory.
+- Use concrete types unless a handler requires flexibility.
+- Pointer receivers for mutating methods or large structs.
+- Use Go error idioms (return `error` as last return value; never panic unless truly fatal).
 
 ### Naming Conventions
-- Files: snake_case, all lower (e.g. `main_test.go`).
-- Functions:
-  - `CamelCase` (`curlHandler`, `LogRequest`).
-  - Tests: `TestXxx`.
-- Variables: short and meaningful (e.g. `res`, `err`, `thing`).
-- Constants: `PascalCase` or `ALL_CAPS` if package-global.
-- Packages: all lower case (`internal`, `mcp`, etc).
+- Files: snake_case (e.g. `main_test.go`).
+- Functions: CamelCase for functions and methods; tests are `TestXxx`.
+- Variables: concise but descriptive; avoid single-letter unless trivial.
+- Constants: PascalCase or ALL_CAPS (for public or global constants).
+- Packages: all lower case.
 
 ### Error Handling
-- Check errors *immediately* after every operation that may fail (esp. I/O, execs, system calls):
+- Always check error returns, especially for I/O, OS, and subprocess calls.
   ```go
   output, err := cmd.Output()
   if err != nil {
@@ -119,55 +103,57 @@ import (
       return mcp.NewToolResultError(err.Error()), nil
   }
   ```
-- Use `internal/log.go` helpers for logging errors, requests, and responses. Log all incoming requests, all significant responses, and all errors.
-- When accepting interface input (esp. via MCP requests), gracefully validate parameter types:
-  ```go
-  url, ok := request.Params.Arguments["url"].(string)
-  if !ok {
-      internal.LogError("mcp-curl", fmt.Errorf("url parameter missing or not a string"))
-      return mcp.NewToolResultError("url must be a string"), nil
-  }
-  ```
-- Fatal program errors (cannot open log file etc.) may use `log.Fatalf`.
+- Validate all interface and input types (esp. for tool params and requests).
+- Use `internal/log.go` helpers where available for logging errors.
+- Use `log.Fatalf` or os.Exit only on unrecoverable, fatal errors.
+- Boundary check all user or LLM-facing input; return clear, validated errors at boundary.
 
 ### Logging
-- Log files are written to `mcp.log` with UTC timestamps. Log type is one of `[REQUEST]`, `[RESPONSE]`, or `[ERROR]`.
-- Use the provided singletons and don't create multiple loggers.
-- All agent output should be idempotent and avoid printing secrets or credentials.
+- Log all requests, significant responses, and errors to `mcp.log`, including UTC timestamps.
+- Valid log types: `[REQUEST]`, `[RESPONSE]`, `[ERROR]`.
+- Do NOT print sensitive info in logs or output.
 
-### Test Code
-- Store tests alongside code, named `main_test.go`.
-- Use table-driven tests when appropriate (not currently used, but encouraged for agent contributions).
-- Use reflection with caution; it's mainly used for MCP test request injection.
-- Tests should skip gracefully if external dependencies (e.g. curl binary) are missing.
+### Tests
+- Store all tests alongside code, use `main_test.go` naming pattern.
+- Use table-driven or property-based tests where possible.
+- Always skip tests gracefully if required binaries (e.g. `curl`) or infrastructure are missing.
+
+### Miscellaneous Conventions
+- Prefer atomic file operations for test and code changes (no partial/dirty writes).
+- Use safe concurrency: protect shared resources, avoid global mutable state unless explicitly synchronized.
+- Avoid premature optimizations; prioritize readability, then performance if justified.
+- Comment all exported symbols and interfaces for generated docs and agentic use.
+- Limit direct shell/script execution to well-checked contexts (agents: double-check shell escapes, unexpected command construction is dangerous).
 
 ---
 
 ## 🪛 Tooling and Environment
 
-- Go Version: 1.23.4 (see go.mod)
-- Dependencies: See `go.mod` — e.g., `github.com/mark3labs/mcp-go`, `github.com/brianvoe/gofakeit/v7`
-- MCPHost CLI for running/serving models
-- Docker can be used for packaging/running MCP servers
-- No Lint/Prettier config files by default
-- No Cursor, Copilot, or additional agentic rule files in this repo as of this version
+- Go version: 1.23.4 (see `go.mod`).
+- Dependencies: see `go.mod` for canonical list.
+- MCPHost CLI for running/serving models and MCP servers.
+- Docker multi-stage for packaging and deployment.
+- No Prettier/lint config, nor Cursor or Copilot rules as of 2026-01-19.
 
-## 🚦 Workflow Suggestions
-- Build and test before and after major changes.
-- Prefer `make` if unsure of build/test variant required.
-- Log meaningful errors and response events; avoid returning silent failures.
-- Automated agents should prefer atomic file operations and maintain code formatting.
-- If introducing new dependencies, update `go.mod` and explain their purpose in PR descriptions.
-- Keep public interfaces minimal and strongly typed.
-- Comment all exported functions and structures.
+---
+
+## 🚦 Workflow & Collaboration
+
+- Build *and* test before and after significant changes. Commit only after success.
+- Use branches for significant features or refactorings; PRs should have clear rationale.
+- Prefer `make` targets unless explicit variant is needed for CLI.
+- Document new dependencies and explain rationale in PRs (keep `go.mod`/`go.sum` updated).
+- Log all non-trivial agent or user-facing events (requests, errors, boundary cases).
+- Automated agents: NEVER output secrets or credentials, and never log them.
+- Keep public API minimal and strongly typed. Use interfaces for extensibility only.
+- Add comments to exported functions, methods, types, and packages.
+- Always check project-specific references: `README.md`, `Makefile`, code in `cmd/`.
 
 ---
 
 ## 📝 References
-- [Official Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
-- [`mcphost` documentation](https://github.com/mark3labs/mcphost)
+- [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
+- [mcphost documentation](https://github.com/mark3labs/mcphost)
 - [Model Context Protocol (MCP)](https://github.com/modelcontextprotocol/)
-- Project-specific usage: see `README.md`, `Makefile`, and code samples in `cmd/`
 
-
-*Document updated automatically for agentic use — 2026-01-19*
+*Document improved for agentic use — 2026-01-19*

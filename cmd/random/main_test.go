@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/mark3labs/mcp-go/mcp"
 	"reflect"
 	"testing"
+
+	"github.com/mark3labs/mcp-go/mcp"
 )
 
 func getContentText(t *testing.T, res *mcp.CallToolResult) string {

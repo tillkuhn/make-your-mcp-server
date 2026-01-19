@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/mark3labs/mcp-go/mcp"
 	"net/http"
 	"net/http/httptest"
 	"os/exec"
 	"reflect"
 	"testing"
+
+	"github.com/mark3labs/mcp-go/mcp"
 )
 
 func makeCurlRequest(args map[string]interface{}) mcp.CallToolRequest {

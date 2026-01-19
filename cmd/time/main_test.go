@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/mark3labs/mcp-go/mcp"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/mark3labs/mcp-go/mcp"
 )
 
 func makeTimeRequest() mcp.CallToolRequest {

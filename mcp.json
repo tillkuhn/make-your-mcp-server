@@ -8,6 +8,9 @@
     },
     "mcp-random" :{
       "command": "./bin/mcp-random"
+    },
+    "mcp-weather" :{
+      "command": "./bin/mcp-weather"
     }
   }
 }

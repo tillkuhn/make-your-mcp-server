@@ -19,6 +19,9 @@ mcp-time: cmd/time/main.go ## build mcp-time
 mcp-random: cmd/random/main.go ## build mcp-random
 	go build -o bin/mcp-random cmd/random/main.go
 
+mcp-weather: cmd/weather/main.go ## build mcp-random
+	go build -o bin/mcp-weather cmd/weather/main.go
+
 install: ## install MCPHost if not already installed
 	@if ! command -v mcphost >/dev/null 2>&1; then \
 		echo "Installing MCPHost..."; \
@@ -35,7 +38,7 @@ test: ## run all unit tests for mcp tools
 	go test ./cmd/...
 
 .PHONY: run
-run: install mcp-curl mcp-time mcp-random ## runs MCPHost with mcp.kson config and specified ollama model
+run: install mcp-curl mcp-time mcp-random mcp-weather ## runs MCPHost with mcp.kson config and specified ollama model
 	mcphost --config ./mcp.json --model ollama:$(MODEL) --debug
 
 
