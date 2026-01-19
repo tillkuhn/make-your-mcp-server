@@ -29,11 +29,11 @@ func main() {
 	s.AddTool(curlTool, curlHandler)
 
 	ipinfoTool := mcp.NewTool("use_ipinfo	",
-		mcp.WithDescription("fetch information for the current Internet IP Address"),
-		mcp.WithString("attribute",
-			mcp.DefaultString("ip"),
-			mcp.Description("attribute to fetch from https://ipinfo.io/, e.g. city, region, country, loc, org, postal, timezone"),
-		),
+		mcp.WithDescription("fetch information for the current Internet IP Address from https://ipinfo.io/"),
+		//mcp.WithString("attribute",
+		//	mcp.DefaultString("ip"),
+		//	mcp.Description("attribute to fetch from https://ipinfo.io/, e.g. city, region, country, loc, org, postal, timezone"),
+		//),
 	)
 	s.AddTool(ipinfoTool, ipinfoHandler)
 
@@ -70,8 +70,9 @@ func ipinfoHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 
 	attribute, ok := request.Params.Arguments["attribute"].(string)
 	if !ok {
-		internal.LogError("mcp-curl", fmt.Errorf("attribute parameter missing or not a string"))
-		return mcp.NewToolResultError("attribute must be a string"), nil
+		//internal.LogError("mcp-curl", fmt.Errorf("attribute parameter missing or not a string"))
+		//return mcp.NewToolResultError("attribute must be a string"), nil
+		attribute = "ip"
 	}
 	allowed := map[string]bool{
 		"city": true, "region": true, "country": true, "ip": true, "hostname": true,
@@ -88,7 +89,7 @@ func ipinfoHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		internal.LogError("mcp-curl", err)
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	content := string(output)
+	content := string(output) + "\n"
 	res := mcp.NewToolResultText(content)
 	internal.LogResponse("mcp-curl", res)
 	return res, nil

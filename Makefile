@@ -36,7 +36,7 @@ test: ## run all unit tests for mcp tools
 
 .PHONY: run
 run: install mcp-curl mcp-time mcp-random ## runs MCPHost with mcp.kson config and specified ollama model
-	mcphost --config ./mcp.json --model ollama:$(MODEL)
+	mcphost --config ./mcp.json --model ollama:$(MODEL) --debug
 
 
 .PHONY: ollama
@@ -59,6 +59,9 @@ ollama-stop:  ## stop ollama service
 .PHONY: ollama-logs
 ollama-logs:  ## show logs from ollama service (blocking)
 	tail -f /opt/homebrew/var/log/ollama.log
+
+ollama-fg: ## run ollama in foreground with debug settings (blocking)
+	  OLLAMA_DEBUG=1 OLLAMA_FLASH_ATTENTION="1" OLLAMA_KV_CACHE_TYPE="q8_0" /opt/homebrew/opt/ollama/bin/ollama serve
 
 .PHONY: models
 models:  ## list ollama models
