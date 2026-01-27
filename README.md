@@ -29,6 +29,26 @@ Available tools:
 1. mcp-curl__use_curl
 ```
 
+Interact programmatically with [OpenCode Zen endpoints](https://opencode.ai/docs/zen#endpoints) Big Pickle Model, API Key can be obtained from [OpenCode Zen](https://opencode.ai/docs/zen/)
+
+```
+$ curl -sS https://opencode.ai/zen/v1/models |jq .
+{ "object": "list",
+  "data": [{
+    "id": "big-pickle",
+    "object": "model",
+    "created": 1769531122,
+    "owned_by": "opencode"}(...)
+```
+
+
+```
+$ curl https://opencode.ai/zen/v1/chat/completions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $(cat .opencode-api-key)" \
+-d '{ "model": "big-pickle","messages": [{"role": "user", "content": "Say this is a test!"}], "temperature": 0.7, "max_tokens": 5}'
+```
+
 
 ## Introduction
 
